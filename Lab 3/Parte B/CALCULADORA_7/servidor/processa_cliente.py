@@ -4,15 +4,17 @@ import socket
 import threading
 from servidor.lista_clientes.lista_clientes import ListaCliente
 from servidor.operacoes.somar import Somar
-from servidor.dados.dados import Dados
+from servidor.operacoes.subtrair import Subtrair
 class ProcessaCliente(threading.Thread):
     def __init__(self, connection, address, dados, clientes: ListaCliente):
         super().__init__()
         self.connection = connection
         self.address = address
         self.sum = Somar()
+        self.sub =Subtrair()
         self.dados = dados
         self.clientes = clientes
+
 #----------interaction with sockets ---------------
     def receive_str(self, connect, n_bytes: int) -> str:
         """
@@ -57,6 +59,7 @@ class ProcessaCliente(threading.Thread):
         last_request = False
         while not last_request:
             request_type = self.receive_str(self.connection, servidor.COMMAND_SIZE)
+            print(request_type)
             if request_type == servidor.ADD_OP:
                 x = self.receive_int(self.connection, servidor.INT_SIZE)
                 y = self.receive_int(self.connection, servidor.INT_SIZE)
@@ -68,7 +71,15 @@ class ProcessaCliente(threading.Thread):
                 for key in self.dados.operacoes:
                     print(key, self.dados.operacoes[key])
             elif request_type == servidor.SUB_OP:
-                pass
+                x = self.receive_int(self.connection, servidor.INT_SIZE)
+                y = self.receive_int(self.connection, servidor.INT_SIZE)
+                print(f"[{self.address}] Somar: {x} - {y}")
+                result = self.sub.execute(x, y)
+                self.send_int(self.connection, result, servidor.INT_SIZE)
+                self.dados.registar_oper("-", x, y, result, self.address)
+                print(self.address, ": foi registada uma diferença")
+                for key in self.dados.operacoes:
+                    print(key, self.dados.operacoes[key])
             elif request_type == servidor.END_OP:
                 last_request = True
                 print(self.address, "Thread terminada")

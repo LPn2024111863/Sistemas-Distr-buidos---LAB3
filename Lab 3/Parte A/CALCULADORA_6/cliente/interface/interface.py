@@ -60,8 +60,6 @@ class Interface:
 			x:int = int(input("x="))
 			y:int = int(input("y="))
 
-			#x:float = float(input("x="))
-			#y:float = float(input("y="))
 			if res =="+":
 				self.send_str(self.connection,cliente.ADD_OP)
 				self.send_int(self.connection,x, cliente.INT_SIZE)
@@ -69,13 +67,3 @@ class Interface:
 				res = self.receive_int(self.connection,cliente.INT_SIZE)
 				print("O resultado da soma é:",res)
 
-#res = self.m.execute("+"+" "+str(x)+" "+str(y))
-			#print("O valor da operação somar é:", res)
-		# elif res =="/":
-		# 	s:object = dividir.Dividir(x,y)
-		# 	res = s.executar()
-		# 	if type(res)==str:
-		# 		print (res)
-		# else:
-		# 		print("O valor da operação divisão é:",res)
-		#

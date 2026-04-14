@@ -1,7 +1,5 @@
 from servidor.maquina.maquina import Maquina
 
-
-
 def main():
     maq = Maquina()
     maq.execute()

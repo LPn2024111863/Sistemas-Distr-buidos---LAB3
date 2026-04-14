@@ -1,11 +1,15 @@
+import threading
+
 class ListaCliente:
     def __init__(self):
-        self.clientes = []
+        self.clientes = {} # Dicionário {address: connection}
+        self._lock = threading.Lock()
 
-    def connect(self, address):
-        self.clientes.append(address)
+    def connect(self, connection, address):
+        with self._lock:
+            self.clientes[address] = connection
 
     def disconnect(self, address):
-        for cliente in self.clientes:
-            if cliente == address:
-                self.clientes.remove(address)
+        with self._lock:
+            if address in self.clientes:
+                del self.clientes[address]

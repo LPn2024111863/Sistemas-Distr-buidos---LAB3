@@ -1,12 +1,11 @@
 import socket
 import json
 import cliente
+from cliente.broadcast_receiver import BroadcastReceiver
 # PORT e SERVER ADDRESS
 
 class Interface:
-	#def __init__(self, maq:object):
 	def __init__(self):
-		#self.m:object = maq
 		self.connection = socket.socket()
 		self.connection.connect((cliente.SERVER_ADDRESS,cliente.PORT))
 
@@ -53,33 +52,25 @@ class Interface:
 
 
 	def execute(self):
-		end = False
-		while not end :
-			print("Qual é o cálculo que quer efetuar? x + - / q")
+		receiver = BroadcastReceiver(self.connection) # Passa só connection
+		receiver.start()
+		print("Preciso que introduza dois valores:")
+		x:int = int(input("x="))
+		y:int = int(input("y="))
+		res =""
+		while res!=".":
+			print("Qual é o cálculo que quer efetuar? x + - / ('.' para fim)")
 			res:str = input()
-			print("Preciso que introduza dois valores:")
-			x:int = int(input("x="))
-			y:int = int(input("y="))
-
-			#x:float = float(input("x="))
-			#y:float = float(input("y="))
 			if res =="+":
 				self.send_str(self.connection,cliente.ADD_OP)
 				self.send_int(self.connection,x, cliente.INT_SIZE)
 				self.send_int(self.connection,y, cliente.INT_SIZE)
-				res = self.receive_int(self.connection,cliente.INT_SIZE)
-				print("O resultado da soma é:",res)
-			elif res =="q":
-				end = True
-				self.send_str(self.connection, cliente.END_OP)
-
-#res = self.m.execute("+"+" "+str(x)+" "+str(y))
-			#print("O valor da operação somar é:", res)
-		# elif res =="/":
-		# 	s:object = dividir.Dividir(x,y)
-		# 	res = s.executar()
-		# 	if type(res)==str:
-		# 		print (res)
-		# else:
-		# 		print("O valor da operação divisão é:",res)
-		#
+			#res = self.receive_int(self.connection,cliente.INT_SIZE)
+			#print("O resultado da soma é:",res)
+			elif res =="-":
+				self.send_str(self.connection,cliente.SUB_OP)
+				self.send_int(self.connection,x, cliente.INT_SIZE)
+				self.send_int(self.connection,y, cliente.INT_SIZE)
+			#res = self.receive_int(self.connection,cliente.INT_SIZE)
+			#print("O resultado da subtração é:",res)
+		self.send_str(self.connection, cliente.END_OP)

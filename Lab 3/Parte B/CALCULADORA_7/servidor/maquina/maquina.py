@@ -1,12 +1,12 @@
 from servidor.operacoes.somar import Somar
 from servidor.operacoes.dividir import Dividir
 from servidor.processa_cliente import ProcessaCliente
+from servidor.broadcast_emissor import ThreadBroadcast
 from servidor.dados.dados import Dados
 from servidor.lista_clientes.lista_clientes import ListaCliente
 import servidor
 import json
 import socket
-
 class Maquina:
 	def __init__(self):
 		self.sum = Somar()
@@ -15,6 +15,7 @@ class Maquina:
 		self.div = Dividir()
 		self.s = socket.socket()
 		self.s.bind(('', servidor.PORT))
+		self.broadcast = None
 
 	# ---------------------- interaction with sockets ------------------------------
 	def receive_int(self,connection, n_bytes: int) -> int:
@@ -46,9 +47,6 @@ class Maquina:
 		"""
 		connection.connection.send(value.encode())
 
-	#TODO
-	# Implement a method that sends and object and returns an object.
-	# ...
 	def send_object(self,connection, obj):
 		"""1º: envia tamanho, 2º: envia dados."""
 		data = json.dumps(obj).encode('utf-8')
@@ -65,89 +63,13 @@ class Maquina:
 	def execute(self):
 		self.s.listen(1)
 		print("Waiting for clients on port " + str(servidor.PORT))
+		self.broadcast = ThreadBroadcast(self.clientes, self.dados, intervalo=2)
+		self.broadcast.start()
 		while True: # Loop infinito para múltiplos clients
 			print("On accept...")
 			connection, address = self.s.accept()
 			print("Client", address, "connected")
-			self.clientes.connect(address)
+			self.clientes.connect(connection, address)
 			print(self.clientes.clientes)
 			processo_cliente = ProcessaCliente(connection, address, self.dados, self.clientes)
 			processo_cliente.start() # Arranca thread após ligação
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	# def __init__(cliente.interface.Interface:object interface):
-	# 	self.interface:object = interface
-	# 	self.somar:object  = servidor.operacoes.somar.Somar()
-	# 	self.dividir:object = servidor.operacoes.dividir.Dividir()
-	# def exec():
-	# 	res = self.interface.exec()
-    # 		if res =="+":
-    #     	s:object = somar.Somar(x,y)
-    #     	res = s.executar(x,y)
-    #     	interacao.resultado(res)
-    #     print("O valor da operação somar é:", res)
-    # elif res =="/":
-    #     s:object = dividir.Dividir(x,y)
-    #     res = s.executar()
-    #     if type(res)==str:
-    #         print (res)
-    #     else:
-    #         print("O valor da operação divisão é:",res)
-
-	#def execute(self,command:str):
-"""	
-	def execute(self):
-		self.s.listen(1)
-		print("Waiting for clients to connect on port " + str(servidor.PORT))
-		keep_running = True
-		while keep_running:
-			print("On accept...")
-			connection, address = self.s.accept()
-			print("Client " + str(address) + " just connected")
-			last_request = False
-			#Recebe messagens...
-			while not last_request:
-				request_type = self.receive_str(connection,servidor.COMMAND_SIZE)
-				if request_type == servidor.ADD_OP:
-					x = self.receive_int(connection,servidor.INT_SIZE)
-					y = self.receive_int(connection,servidor.INT_SIZE)
-					print("Pediram para somar:",x,"+",y)
-					result = self.sum.execute(x,y)
-					self.send_int(connection,result, servidor.INT_SIZE)
-				elif request_type == servidor.END_OP:
-					last_request = True
-					keep_running = False
-		print("Stopping...")
-		self.s.close()
-		print("Server stopped")
-
-#c = command.split()
-		# Get the operator
-	#	if c[0] =="+":
-			#Call operator
-	#		res = self.sum.execute(float(c[1]),float(c[2]))
-	#	return res
-
-"""
