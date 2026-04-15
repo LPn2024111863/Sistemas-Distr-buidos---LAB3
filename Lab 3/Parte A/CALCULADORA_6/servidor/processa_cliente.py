@@ -63,6 +63,7 @@ class ProcessaCliente(threading.Thread):
                 self.send_int(self.connection, result, servidor.INT_SIZE)
                 self.dados.registar_oper("+", x, y, result, self.address)
                 print(self.address,": foi registada uma soma")
+                self.send_object(self.connection, self.dados.operacoes)
                 for key in self.dados.operacoes:
                     print(key, self.dados.operacoes[key])
             elif request_type == servidor.SUB_OP:

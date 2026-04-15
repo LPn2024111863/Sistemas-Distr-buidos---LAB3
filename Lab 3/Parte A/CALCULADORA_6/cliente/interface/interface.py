@@ -66,4 +66,7 @@ class Interface:
 				self.send_int(self.connection,y, cliente.INT_SIZE)
 				res = self.receive_int(self.connection,cliente.INT_SIZE)
 				print("O resultado da soma é:",res)
+				operacoes = self.receive_object(self.connection)
+				for operacao in operacoes:
+					print(operacao, operacoes[operacao])
 
